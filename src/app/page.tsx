@@ -74,7 +74,7 @@ async function Hero() {
           <span>Flexible cancellations.</span>
         </div>
       </div>
-      <div className="mt-5 hidden md:block">
+      <div className="mt-5 px-4 md:px-0">
         <Suspense fallback={<SearchFormSkeleton />}>
           <SearchForm locations={locations} />
         </Suspense>

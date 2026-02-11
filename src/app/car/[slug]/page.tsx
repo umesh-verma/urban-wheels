@@ -5,6 +5,8 @@ import { Check, Gift, LifeBuoy, Map } from "lucide-react";
 import type { Metadata } from "next";
 
 import { fetchCarBySlug, fetchLocations } from "@/lib/db/queries";
+import { formatCurrency } from "@/lib/utils";
+import { ReservationForm } from "./reservation-form";
 import { ReservationSidebar } from "./reservation-sidebar";
 
 type CarPageProps = {
@@ -42,10 +44,43 @@ export default async function CarDetailsPage({ params }: CarPageProps) {
     notFound();
   }
 
+  const pricePerDay = car.discounted_price_per_day || car.retail_price_per_day;
+  const currency = car.discounted_price_currency || car.retail_price_currency;
+
   return (
     <div className="mx-auto w-full max-w-none px-5 md:max-w-[90%] md:px-0 lg:mt-4 xl:max-w-6xl">
+      {/* Mobile: Sticky reservation bar at top */}
+      <div className="lg:hidden sticky top-[57px] z-40 -mx-5 mb-6 border-b bg-background px-4 py-3 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="text-lg font-semibold text-foreground">
+              {formatCurrency(pricePerDay, currency)}
+            </span>
+            <span className="text-muted-foreground text-sm"> /day</span>
+          </div>
+          <a
+            href="#reserve-form"
+            className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          >
+            Reserve
+          </a>
+        </div>
+      </div>
+
       <div className="grid w-full grid-cols-1 gap-16 lg:grid-cols-[1fr_370px]">
         <div className="p-6 px-0 pb-0 md:pb-0 md:pr-6">
+          {/* Mobile: Reservation form right after title */}
+          <div id="reserve-form" className="lg:hidden mb-8">
+            <div className="rounded-xl border p-4 shadow-[0_6px_16px_rgba(0,0,0,0.12)]">
+              <ReservationForm
+                car={car}
+                locations={locations}
+                pricePerDay={pricePerDay}
+                currency={currency}
+              />
+            </div>
+          </div>
+
           <div className="grid grid-cols-[1fr_auto] justify-between">
             <div className="flex flex-col">
               <h1 className="font-heading text-2xl md:text-3xl">{car.name}</h1>
@@ -138,14 +173,17 @@ export default async function CarDetailsPage({ params }: CarPageProps) {
           </div>
         </div>
 
-        <ReservationSidebar
-          car={car}
-          pricePerDay={car.discounted_price_per_day || car.retail_price_per_day}
-          currency={car.discounted_price_currency || car.retail_price_currency}
-          rating={car.rating}
-          reviews={car.reviews}
-          locations={locations}
-        />
+        {/* Desktop: Sidebar */}
+        <div className="hidden lg:block">
+          <ReservationSidebar
+            car={car}
+            pricePerDay={pricePerDay}
+            currency={currency}
+            rating={car.rating}
+            reviews={car.reviews}
+            locations={locations}
+          />
+        </div>
       </div>
     </div>
   );
