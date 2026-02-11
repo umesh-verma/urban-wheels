@@ -2,8 +2,8 @@
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.urban_wheels_user": {
-      "name": "urban_wheels_user",
+    "public.cg_rental_user": {
+      "name": "cg_rental_user",
       "schema": "",
       "columns": {
         "id": {

@@ -243,7 +243,7 @@ export async function getMinPriceFromCars() {
     const query = sql`
       SELECT
         MIN(COALESCE(discounted_price_per_day, retail_price_per_day)) AS min_price
-      FROM urban_wheels_cars;
+      FROM cg_rental_cars;
     `;
 
     const data = await db.execute(query);

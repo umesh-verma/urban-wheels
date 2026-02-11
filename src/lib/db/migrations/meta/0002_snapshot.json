@@ -4,8 +4,8 @@
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.urban_wheels_user": {
-      "name": "urban_wheels_user",
+    "public.cg_rental_user": {
+      "name": "cg_rental_user",
       "schema": "",
       "columns": {
         "id": {
@@ -39,8 +39,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "public.urban_wheels_cars": {
-      "name": "urban_wheels_cars",
+    "public.cg_rental_cars": {
+      "name": "cg_rental_cars",
       "schema": "",
       "columns": {
         "id": {
@@ -157,8 +157,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "urban_wheels_cars_slug_unique": {
-          "name": "urban_wheels_cars_slug_unique",
+        "cg_rental_cars_slug_unique": {
+          "name": "cg_rental_cars_slug_unique",
           "nullsNotDistinct": false,
           "columns": [
             "slug"
@@ -167,8 +167,8 @@
       },
       "checkConstraints": {}
     },
-    "public.urban_wheels_locations": {
-      "name": "urban_wheels_locations",
+    "public.cg_rental_locations": {
+      "name": "cg_rental_locations",
       "schema": "",
       "columns": {
         "id": {
@@ -220,8 +220,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "urban_wheels_locations_value_unique": {
-          "name": "urban_wheels_locations_value_unique",
+        "cg_rental_locations_value_unique": {
+          "name": "cg_rental_locations_value_unique",
           "nullsNotDistinct": false,
           "columns": [
             "value"
@@ -230,8 +230,8 @@
       },
       "checkConstraints": {}
     },
-    "public.urban_wheels_newsletter_subscribers": {
-      "name": "urban_wheels_newsletter_subscribers",
+    "public.cg_rental_newsletter_subscribers": {
+      "name": "cg_rental_newsletter_subscribers",
       "schema": "",
       "columns": {
         "id": {
@@ -260,8 +260,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "public.urban_wheels_rental_reservations": {
-      "name": "urban_wheels_rental_reservations",
+    "public.cg_rental_rental_reservations": {
+      "name": "cg_rental_rental_reservations",
       "schema": "",
       "columns": {
         "id": {
@@ -314,8 +314,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "public.urban_wheels_testimonials": {
-      "name": "urban_wheels_testimonials",
+    "public.cg_rental_testimonials": {
+      "name": "cg_rental_testimonials",
       "schema": "",
       "columns": {
         "id": {
