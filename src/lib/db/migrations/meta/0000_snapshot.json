@@ -1,10 +1,8 @@
 {
-  "id": "63f50552-9b89-46c8-817d-88fea5770200",
-  "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "5",
-  "dialect": "pg",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "urban_wheels_user": {
+    "public.urban_wheels_user": {
       "name": "urban_wheels_user",
       "schema": "",
       "columns": {
@@ -45,5 +43,8 @@
     "schemas": {},
     "tables": {},
     "columns": {}
-  }
+  },
+  "id": "63f50552-9b89-46c8-817d-88fea5770200",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "sequences": {}
 }

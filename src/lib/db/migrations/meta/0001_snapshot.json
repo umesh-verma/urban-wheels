@@ -1,10 +1,8 @@
 {
-  "id": "4f7359b0-43b5-456e-a171-bbc9d62e874c",
-  "prevId": "63f50552-9b89-46c8-817d-88fea5770200",
-  "version": "5",
-  "dialect": "pg",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "urban_wheels_user": {
+    "public.urban_wheels_user": {
       "name": "urban_wheels_user",
       "schema": "",
       "columns": {
@@ -38,7 +36,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "urban_wheels_cars": {
+    "public.urban_wheels_cars": {
       "name": "urban_wheels_cars",
       "schema": "",
       "columns": {
@@ -152,14 +150,14 @@
       "uniqueConstraints": {
         "urban_wheels_cars_slug_unique": {
           "name": "urban_wheels_cars_slug_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "slug"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
-    "urban_wheels_locations": {
+    "public.urban_wheels_locations": {
       "name": "urban_wheels_locations",
       "schema": "",
       "columns": {
@@ -208,14 +206,14 @@
       "uniqueConstraints": {
         "urban_wheels_locations_value_unique": {
           "name": "urban_wheels_locations_value_unique",
-          "nullsNotDistinct": false,
           "columns": [
             "value"
-          ]
+          ],
+          "nullsNotDistinct": false
         }
       }
     },
-    "urban_wheels_newsletter_subscribers": {
+    "public.urban_wheels_newsletter_subscribers": {
       "name": "urban_wheels_newsletter_subscribers",
       "schema": "",
       "columns": {
@@ -244,7 +242,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "urban_wheels_rental_reservations": {
+    "public.urban_wheels_rental_reservations": {
       "name": "urban_wheels_rental_reservations",
       "schema": "",
       "columns": {
@@ -297,7 +295,7 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "urban_wheels_testimonials": {
+    "public.urban_wheels_testimonials": {
       "name": "urban_wheels_testimonials",
       "schema": "",
       "columns": {
@@ -345,5 +343,8 @@
     "schemas": {},
     "tables": {},
     "columns": {}
-  }
+  },
+  "id": "4f7359b0-43b5-456e-a171-bbc9d62e874c",
+  "prevId": "63f50552-9b89-46c8-817d-88fea5770200",
+  "sequences": {}
 }

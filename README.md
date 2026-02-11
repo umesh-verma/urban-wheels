@@ -6,7 +6,7 @@
   <img src="https://github.com/rajput-hemant/urban-wheels/blob/master/src/app/opengraph-image.png?raw=true" alt="A car rental service website built with Next.js, Tailwind CSS & shadcn/ui.">
 </a>
 
-# Urban Wheels
+# CG Rental
 
 ### A car rental service website built with Next.js, Tailwind CSS & shadcn/ui.
 

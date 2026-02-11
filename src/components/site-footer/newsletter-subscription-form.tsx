@@ -1,7 +1,8 @@
 "use client";
 
+import { useActionState } from "react";
 import { CheckCircle } from "lucide-react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useFormStatus } from "react-dom";
 
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -28,7 +29,10 @@ export function NewsletterSubscriptionForm() {
     };
   }
 
-  const [state, formAction] = useFormState(subscribeToNewsletter, initialState);
+  const [state, formAction] = useActionState(
+    subscribeToNewsletter,
+    initialState
+  );
 
   return (
     <form action={formAction}>

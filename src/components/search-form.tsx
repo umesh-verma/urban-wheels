@@ -18,6 +18,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Form,
@@ -160,29 +161,31 @@ export function SearchForm({
                   <PopoverContent className="p-0">
                     <Command>
                       <CommandInput placeholder="Search location..." />
-                      <CommandEmpty>No place found.</CommandEmpty>
-                      <CommandGroup>
-                        {locations.map(({ name, value }) => (
-                          <CommandItem
-                            key={name}
-                            value={value}
-                            onSelect={(currentValue) => {
-                              form.setValue("location", currentValue);
-                              setOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 size-4 shrink-0",
-                                value === field.value ?
-                                  "opacity-100"
-                                : "opacity-0"
-                              )}
-                            />
-                            {name}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
+                      <CommandList>
+                        <CommandEmpty>No place found.</CommandEmpty>
+                        <CommandGroup>
+                          {locations.map(({ name, value }) => (
+                            <CommandItem
+                              key={name}
+                              value={value}
+                              onSelect={(currentValue) => {
+                                form.setValue("location", currentValue);
+                                setOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 size-4 shrink-0",
+                                  value === field.value ?
+                                    "opacity-100"
+                                  : "opacity-0"
+                                )}
+                              />
+                              {name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
                     </Command>
                   </PopoverContent>
                 </Popover>
@@ -237,7 +240,7 @@ export function SearchForm({
 
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
-                      initialFocus
+                      autoFocus
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
@@ -296,7 +299,7 @@ export function SearchForm({
 
                   <PopoverContent className="w-auto p-0" align="start">
                     <Calendar
-                      initialFocus
+                      autoFocus
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
