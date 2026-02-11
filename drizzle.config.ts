@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-properties */
+ 
 import { cwd } from "process";
 import { loadEnvConfig } from "@next/env";
 
