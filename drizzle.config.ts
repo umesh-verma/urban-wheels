@@ -1,4 +1,3 @@
- 
 import { cwd } from "process";
 import { loadEnvConfig } from "@next/env";
 
