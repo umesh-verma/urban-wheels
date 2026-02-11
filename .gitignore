@@ -26,10 +26,11 @@ yarn-error.log*
 
 # local env files
 .env*.local
-
+.env
 # vercel
 .vercel
-
+.tool-versions
+bun.lockb
 # typescript
 *.tsbuildinfo
 next-env.d.ts
