@@ -5,7 +5,11 @@ import { MapContainer } from "@/components/map-container";
 import { SearchForm } from "@/components/search-form";
 import { CarCatalogSkeleton } from "@/components/skeletons/car-catalog-skeleton";
 import { SearchFormSkeleton } from "@/components/skeletons/search-form-skeleton";
-import { fetchCars, fetchLocations } from "@/lib/db/queries";
+import {
+  fetchAvailableCars,
+  fetchCars,
+  fetchLocations,
+} from "@/lib/db/queries";
 import { SearchParams } from "@/lib/enums";
 import { slugify } from "@/lib/utils";
 import { CarCard } from "./car-card";
@@ -13,6 +17,9 @@ import { Filters } from "./filters";
 
 type CarsPageProps = {
   searchParams: Promise<{
+    [SearchParams.LOCATION]?: string;
+    [SearchParams.CHECKIN]?: string;
+    [SearchParams.CHECKOUT]?: string;
     [SearchParams.MIN_PRICE]?: string;
     [SearchParams.MAX_PRICE]?: string;
     [SearchParams.BODY_STYLE]?: string[];
@@ -24,7 +31,18 @@ type CarsPageProps = {
 
 export default async function CarsPage(props: CarsPageProps) {
   const searchParams = await props.searchParams;
-  const [cars, locations] = await Promise.all([fetchCars(), fetchLocations()]);
+  const {
+    [SearchParams.LOCATION]: location,
+    [SearchParams.CHECKIN]: checkin,
+    [SearchParams.CHECKOUT]: checkout,
+  } = searchParams;
+
+  const [cars, locations] = await Promise.all([
+    location && checkin && checkout ?
+      fetchAvailableCars(location, new Date(checkin), new Date(checkout))
+    : fetchCars(),
+    fetchLocations(),
+  ]);
 
   const carPrices = cars.map(
     (car) => car.discounted_price_per_day || car.retail_price_per_day
@@ -40,6 +58,12 @@ export default async function CarsPage(props: CarsPageProps) {
     [SearchParams.TRANSMISSION]: transmissions,
     [SearchParams.MIN_SEATS]: minSeats,
   } = searchParams;
+
+  // Location filter (if cars weren't already filtered by fetchAvailableCars)
+  if (location && !(checkin && checkout)) {
+    // TODO: Add location-based filtering when dates are not provided
+    // This requires a car_locations join table that doesn't exist yet
+  }
 
   if (minPrice) {
     filteredCars = filteredCars.filter((car) => {

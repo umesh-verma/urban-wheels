@@ -1,5 +1,6 @@
 import { cwd } from "process";
 import { loadEnvConfig } from "@next/env";
+import { defineConfig } from "drizzle-kit";
 
 import type { Config } from "drizzle-kit";
 
@@ -12,7 +13,7 @@ if (!process.env.DATABASE_URL) {
   process.exit(1);
 }
 
-export default {
+export default defineConfig({
   schema: "./src/lib/db/schema",
   out: "./src/lib/db/migrations",
   dialect: "postgresql",
@@ -20,4 +21,4 @@ export default {
     url: process.env.DATABASE_URL,
   },
   tablesFilter: [`${siteConfig.name.toLowerCase().replace(/\s/g, "_")}_*`],
-} satisfies Config;
+}) satisfies Config;

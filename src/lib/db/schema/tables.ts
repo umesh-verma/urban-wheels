@@ -25,6 +25,7 @@ export const testimonials = createTable("testimonials", {
 
 export const cars = createTable("cars", {
   id: uuid("id").defaultRandom().primaryKey(),
+  location_id: uuid("location_id").notNull(),
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   body_style: text("body_style").notNull(),

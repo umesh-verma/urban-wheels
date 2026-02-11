@@ -1,12 +1,21 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 
 import { db } from ".";
 import { env } from "../env";
 import * as placeholder from "./placeholder";
-import { cars, locations, testimonials } from "./schema/tables";
+import {
+  cars,
+  locations,
+  rentalReservations,
+  testimonials,
+} from "./schema/tables";
+
+function usePlaceholder() {
+  return env.NODE_ENV === "development" && !env.USE_DATABASE;
+}
 
 export async function fetchTestimonials() {
-  if (env.NODE_ENV === "development") {
+  if (usePlaceholder()) {
     return placeholder.testimonials;
   }
 
@@ -22,7 +31,7 @@ export async function fetchTestimonials() {
 }
 
 export async function fetchLocations() {
-  if (env.NODE_ENV === "development") {
+  if (usePlaceholder()) {
     return placeholder.locations;
   }
 
@@ -38,7 +47,7 @@ export async function fetchLocations() {
 }
 
 export async function fetchFeaturedLocations() {
-  if (env.NODE_ENV === "development") {
+  if (usePlaceholder()) {
     return placeholder.locations.filter((location) => location.featured);
   }
 
@@ -57,7 +66,7 @@ export async function fetchFeaturedLocations() {
 }
 
 export async function fetchLocationByValue(value: string) {
-  if (env.NODE_ENV === "development") {
+  if (usePlaceholder()) {
     return placeholder.locations.find((location) => location.value === value);
   }
 
@@ -76,7 +85,7 @@ export async function fetchLocationByValue(value: string) {
 }
 
 export async function fetchCars() {
-  if (env.NODE_ENV === "development") {
+  if (usePlaceholder()) {
     return placeholder.cars;
   }
 
@@ -92,7 +101,7 @@ export async function fetchCars() {
 }
 
 export async function fetchCarBySlug(slug: string) {
-  if (env.NODE_ENV === "development") {
+  if (usePlaceholder()) {
     return placeholder.cars.find((car) => car.slug === slug);
   }
 
@@ -108,8 +117,94 @@ export async function fetchCarBySlug(slug: string) {
   }
 }
 
+export async function fetchAvailableCars(
+  locationValue: string,
+  checkIn: Date,
+  checkOut: Date
+) {
+  // Find the location by value
+  const location = await fetchLocationByValue(locationValue);
+  if (!location?.id) {
+    return [];
+  }
+
+  const locationId = location.id;
+
+  if (usePlaceholder()) {
+    // In development mode, filter placeholder data
+    // First filter cars by location, then exclude reserved ones
+    const locationCars = placeholder.cars.filter(
+      (car) => car.location_id === locationId
+    );
+
+    // Find overlapping reservations at this location
+    const overlappingReservations = placeholder.rentalReservations.filter(
+      (reservation) => {
+        if (reservation.location_id !== locationId) return false;
+        const resCheckIn = new Date(reservation.check_in);
+        const resCheckOut = new Date(reservation.check_out);
+        // Check for date overlap: reservation overlaps if it starts before checkOut AND ends after checkIn
+        return resCheckIn < checkOut && resCheckOut > checkIn;
+      }
+    );
+    const reservedCarIds = new Set(
+      overlappingReservations.map((r) => r.car_id)
+    );
+
+    return locationCars.filter((car) => !reservedCarIds.has(car.id!));
+  }
+
+  try {
+    console.log("Fetching available cars for location and dates...");
+
+    // Find cars that have overlapping reservations at this location
+    const overlappingReservations = await db
+      .select({ carId: rentalReservations.car_id })
+      .from(rentalReservations)
+      .where(
+        and(
+          eq(rentalReservations.location_id, locationId),
+          // Check for date overlap: reservation overlaps if it starts before checkOut AND ends after checkIn
+          and(
+            sql`${rentalReservations.check_in} < ${checkOut.toISOString()}`,
+            sql`${rentalReservations.check_out} > ${checkIn.toISOString()}`
+          )
+        )
+      );
+
+    const reservedCarIds = overlappingReservations.map((r) => r.carId);
+
+    // Get cars at this location that are NOT reserved
+    if (reservedCarIds.length === 0) {
+      // No reservations, return all cars at this location
+      const locationCars = await db
+        .select()
+        .from(cars)
+        .where(eq(cars.location_id, locationId));
+      return locationCars;
+    }
+
+    // Filter out reserved cars at this location
+    const availableCars = await db
+      .select()
+      .from(cars)
+      .where(
+        and(
+          eq(cars.location_id, locationId),
+          sql`${cars.id} NOT IN (${reservedCarIds.map((id) => `'${id}'`).join(", ")})`
+        )
+      );
+
+    console.log("Data fetch complete.");
+    return availableCars;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch available cars.");
+  }
+}
+
 export async function getMinPriceFromCars() {
-  if (env.NODE_ENV === "development") {
+  if (usePlaceholder()) {
     return placeholder.cars.reduce((min, car) => {
       const price =
         car.discounted_price_per_day || car.retail_price_per_day || 0;

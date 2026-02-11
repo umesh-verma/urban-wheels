@@ -152,6 +152,7 @@ export const testimonials: Testimonial[] = [
 export const cars: Car[] = [
   {
     id: "04df75a5-d495-4192-927d-4c54e68feca9",
+    location_id: "c16c11e1-0875-4a56-8faf-2d080ae0b6d6",
     slug: "eco-hatchback",
     name: "Eco Hatchback",
     body_style: "Hatchback",
@@ -181,6 +182,7 @@ export const cars: Car[] = [
   },
   {
     id: "9fd1b27a-2e47-4105-88c2-8e19f5839f3d",
+    location_id: "2a97043f-184f-4663-9dbb-fe8b9afc8d64",
     slug: "city-minivan",
     name: "City Minivan",
     body_style: "Minivan",
@@ -210,6 +212,7 @@ export const cars: Car[] = [
   },
   {
     id: "f27a0c28-74ca-4974-92a6-e398842186eb",
+    location_id: "fae436f3-6341-486a-8691-0633f64e1997",
     slug: "mid-size-suv",
     name: "Mid-Size SUV",
     body_style: "SUV",
@@ -237,6 +240,7 @@ export const cars: Car[] = [
   },
   {
     id: "4561ca55-c694-4530-b937-ad185e36f0b4",
+    location_id: "6132dc81-cc1a-4a2e-93c3-d176139bec4f",
     slug: "electric-luxury-sedan",
     name: "Electric Luxury Sedan",
     body_style: "Sedan",
@@ -264,6 +268,7 @@ export const cars: Car[] = [
   },
   {
     id: "da2a5e67-272a-4bf6-92e6-0cfef87681c2",
+    location_id: "92331cbf-254a-4acf-9671-a77810faef4c",
     slug: "full-size-sedan",
     name: "Full-Size Sedan",
     body_style: "Sedan",
@@ -291,6 +296,7 @@ export const cars: Car[] = [
   },
   {
     id: "76cb7f00-6f8f-4dfc-8765-6253659a07b7",
+    location_id: "e27e9e7c-5bf9-44f9-b24f-3b5df6417c77",
     slug: "luxury-sedan",
     name: "Luxury Sedan",
     body_style: "Sedan",
@@ -319,6 +325,7 @@ export const cars: Car[] = [
   },
   {
     id: "0b02be48-45f3-49b8-9e5b-1da952656635",
+    location_id: "fd1e4b0d-5e1a-41db-a89b-6e33eed72ace",
     slug: "premium-sedan",
     name: "Premium Sedan",
     body_style: "Sedan",
@@ -346,6 +353,7 @@ export const cars: Car[] = [
   },
   {
     id: "7c064fca-4f39-4b6f-b487-69e8abe99691",
+    location_id: "45d07433-25e2-4ce7-b039-f0317e694048",
     slug: "premium-suv",
     name: "Premium SUV",
     body_style: "SUV",
@@ -373,6 +381,7 @@ export const cars: Car[] = [
   },
   {
     id: "2d0b0f66-2d96-4ff3-9f9c-e71ad0942bfc",
+    location_id: "d9b23370-3be4-4936-ae23-3ad54b310fd8",
     slug: "standard-sedan",
     name: "Standard Sedan",
     body_style: "Sedan",
@@ -403,6 +412,7 @@ export const cars: Car[] = [
   },
   {
     id: "cec126bf-911f-433f-ad2e-1c8a8c4f6cf4",
+    location_id: "2538dcf8-b531-4c68-a87a-b49a42be0c23",
     slug: "standard-hatchback",
     name: "Standard Hatchback",
     body_style: "Hatchback",
@@ -432,6 +442,7 @@ export const cars: Car[] = [
   },
   {
     id: "2a845e71-52be-4e2c-948a-a9ebde5f2d8b",
+    location_id: "b31d9e0c-77c6-427b-9a19-37382ea62d7b",
     slug: "city-hatchback",
     name: "City Hatchback",
     body_style: "Hatchback",
@@ -461,6 +472,7 @@ export const cars: Car[] = [
   },
   {
     id: "102b10e3-0b91-4075-b665-d2a5786e2658",
+    location_id: "ff841d10-0682-4e51-9330-47c5abb00643",
     slug: "standard-suv",
     name: "Standard SUV",
     body_style: "SUV",
@@ -490,6 +502,7 @@ export const cars: Car[] = [
   },
   {
     id: "844e391e-7af0-4a1a-834b-7d60c001c2cf",
+    location_id: "c16c11e1-0875-4a56-8faf-2d080ae0b6d6",
     slug: "full-size-suv",
     name: "Full-Size SUV",
     body_style: "SUV",
@@ -519,6 +532,7 @@ export const cars: Car[] = [
   },
   {
     id: "90e2bc9b-2569-40ae-85fb-e699cdf92838",
+    location_id: "2a97043f-184f-4663-9dbb-fe8b9afc8d64",
     slug: "community-minivan",
     name: "Community Minivan",
     body_style: "Minivan",
@@ -546,6 +560,7 @@ export const cars: Car[] = [
   },
   {
     id: "2ad6c3ae-8ab1-4b63-87f8-b592f7370b3c",
+    location_id: "fae436f3-6341-486a-8691-0633f64e1997",
     slug: "standard-minivan",
     name: "Standard Minivan",
     body_style: "Minivan",
@@ -575,6 +590,7 @@ export const cars: Car[] = [
   },
   {
     id: "fbfdda25-e4b4-4cf5-8a96-f5f6b23206f6",
+    location_id: "6132dc81-cc1a-4a2e-93c3-d176139bec4f",
     slug: "premium-pickup",
     name: "Premium Pickup",
     body_style: "Pickup Truck",
@@ -604,6 +620,7 @@ export const cars: Car[] = [
   },
   {
     id: "260cc955-eeb4-4449-85bd-e263fb88678e",
+    location_id: "92331cbf-254a-4acf-9671-a77810faef4c",
     slug: "standard-pickup",
     name: "Standard Pickup",
     body_style: "Pickup Truck",
@@ -633,6 +650,7 @@ export const cars: Car[] = [
   },
   {
     id: "736b82c2-0d21-49ab-bb6e-1c26a11df5fd",
+    location_id: "e27e9e7c-5bf9-44f9-b24f-3b5df6417c77",
     slug: "off-road-suv",
     name: "Off-Road SUV",
     body_style: "SUV",
@@ -661,6 +679,7 @@ export const cars: Car[] = [
   },
   {
     id: "606e2dc2-b840-4183-ba12-a6b8d4eca20d",
+    location_id: "fd1e4b0d-5e1a-41db-a89b-6e33eed72ace",
     slug: "turbo-sports-car",
     name: "Turbo Sports Car",
     body_style: "Sports Car",
@@ -691,6 +710,7 @@ export const cars: Car[] = [
   },
   {
     id: "d5103ca4-cc3d-4d5f-a9a9-44897fb7d463",
+    location_id: "45d07433-25e2-4ce7-b039-f0317e694048",
     slug: "premium-minivan",
     name: "Premium Minivan",
     body_style: "Minivan",
@@ -718,6 +738,7 @@ export const cars: Car[] = [
   },
   {
     id: "c739113b-2e95-4a2b-a18a-dcb29e8e7242",
+    location_id: "d9b23370-3be4-4936-ae23-3ad54b310fd8",
     slug: "velocity-sports-car",
     name: "Velocity Sports Car",
     body_style: "Sports Car",
@@ -747,6 +768,7 @@ export const cars: Car[] = [
   },
   {
     id: "cfff2b45-bebc-4467-978a-9dfce7eb0fd0",
+    location_id: "2538dcf8-b531-4c68-a87a-b49a42be0c23",
     slug: "racer-sports-car",
     name: "Racer Sports Car",
     body_style: "Sports Car",
@@ -775,6 +797,7 @@ export const cars: Car[] = [
   },
   {
     id: "37b78271-06ed-43af-a546-5475676bc19e",
+    location_id: "b31d9e0c-77c6-427b-9a19-37382ea62d7b",
     slug: "urban-pickup",
     name: "Urban Pickup",
     body_style: "Pickup Truck",
@@ -802,6 +825,7 @@ export const cars: Car[] = [
   },
   {
     id: "65f2b06b-f6b8-4fca-a520-a6a7ee119050",
+    location_id: "ff841d10-0682-4e51-9330-47c5abb00643",
     slug: "sporty-hatchback",
     name: "Sporty Hatchback",
     body_style: "Hatchback",
