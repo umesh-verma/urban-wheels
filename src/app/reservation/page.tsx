@@ -3,6 +3,7 @@ import { differenceInDays } from "date-fns";
 import { Star } from "lucide-react";
 
 import { Separator } from "@/components/ui/separator";
+import { checkAuth } from "@/lib/auth";
 import { fetchCarBySlug, fetchLocationByValue } from "@/lib/db/queries";
 import { SearchParams } from "@/lib/enums";
 import { formatCurrency, formatDates } from "@/lib/utils";
@@ -13,12 +14,15 @@ type ReservationPageProps = {
   searchParams: Promise<{
     [SearchParams.CAR_SLUG]: string;
     [SearchParams.LOCATION]: string;
-    [SearchParams.CHECKIN]: string;
-    [SearchParams.CHECKOUT]: string;
+    [SearchParams.CHECKIN]?: string;
+    [SearchParams.CHECKOUT]?: string;
   }>;
 };
 
 export default async function ReservationPage(props: ReservationPageProps) {
+  // Check if user is authenticated
+  await checkAuth();
+
   const searchParams = await props.searchParams;
   const {
     checkin,
@@ -40,18 +44,44 @@ export default async function ReservationPage(props: ReservationPageProps) {
     throw new Error("Failed to fetch location data.");
   }
 
-  const bodyStyle = car.value.body_style;
-  const carName = car.value.name;
-  const rating = car.value.rating;
-  const reviews = car.value.reviews;
+  const carData = car.value;
+  const locationData = location.value;
+
+  // Check if dates are provided
+  if (!checkin || !checkout) {
+    throw new Error("Please select check-in and check-out dates.");
+  }
+
+  const bodyStyle = carData.body_style;
+  const carName = carData.name;
+  const rating = carData.rating;
+  const reviews = carData.reviews;
   const pricePerDay =
-    car.value.discounted_price_per_day || car.value.retail_price_per_day;
+    carData.discounted_price_per_day || carData.retail_price_per_day;
   const currency =
-    car.value.discounted_price_currency || car.value.retail_price_currency;
+    carData.discounted_price_currency || carData.retail_price_currency;
 
   const days = differenceInDays(new Date(checkout), new Date(checkin));
   const subtotal = pricePerDay * days;
   const taxesAndFees = subtotal * 0.16;
+  const total = subtotal + taxesAndFees;
+
+  // Prepare reservation data for the PayButton
+  const reservationData = {
+    carId: carData.id!,
+    locationId: locationData.id!,
+    checkIn: new Date(checkin),
+    checkOut: new Date(checkout),
+    carName: carData.name,
+    carSlug: carData.slug,
+    locationName: locationData.name,
+    pricePerDay,
+    totalDays: days,
+    subtotal,
+    taxesAndFees,
+    total,
+    currency,
+  };
 
   return (
     <main className="mx-auto w-full max-w-none px-5 md:max-w-[90%] md:px-0 lg:mt-4 xl:max-w-6xl">
@@ -75,12 +105,12 @@ export default async function ReservationPage(props: ReservationPageProps) {
 
           <div className="mt-4 space-y-1">
             <h3 className="font-semibold">Place</h3>
-            <p className="text-muted-foreground">{location.value.name}</p>
+            <p className="text-muted-foreground">{locationData.name}</p>
           </div>
 
           <Separator decorative className="my-8" />
 
-          <PayButton />
+          <PayButton reservationData={reservationData} />
         </div>
 
         <div className="mx-auto w-full max-w-lg rounded-xl border p-6 md:mx-0">
@@ -99,8 +129,8 @@ export default async function ReservationPage(props: ReservationPageProps) {
             </div>
 
             <Image
-              src={car.value.image_url}
-              alt={car.value.name}
+              src={carData.image_url}
+              alt={carData.name}
               width={100}
               height={100}
             />
@@ -129,7 +159,7 @@ export default async function ReservationPage(props: ReservationPageProps) {
 
           <div className="flex justify-between font-semibold">
             <span>Total ({currency})</span>
-            <span>{formatCurrency(subtotal + taxesAndFees, currency)}</span>
+            <span>{formatCurrency(total, currency)}</span>
           </div>
         </div>
       </div>

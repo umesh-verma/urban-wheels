@@ -85,6 +85,22 @@ export const env = createEnv({
       .string()
       .min(1, { message: "Database URL is invalid or missing" }),
 
+    /* -----------------------------------------------------------------------------------------------
+     * Company WhatsApp Number (for reservations)
+     * -----------------------------------------------------------------------------------------------*/
+
+    COMPANY_WHATSAPP_NUMBER: z
+      .string()
+      .min(1, { message: "Company WhatsApp number is required" })
+      .default("+911234567890"),
+
+    /* -----------------------------------------------------------------------------------------------
+     * Supabase Storage
+     * -----------------------------------------------------------------------------------------------*/
+
+    SUPABASE_URL: z.string().url().optional(),
+    SUPABASE_SERVICE_KEY: z.string().optional(),
+
   },
 
   /**

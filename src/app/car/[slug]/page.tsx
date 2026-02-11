@@ -140,7 +140,7 @@ export default async function CarDetailsPage({ params }: CarPageProps) {
         </div>
 
         <ReservationSidebar
-          carSlug={slug}
+          car={car}
           pricePerDay={car.discounted_price_per_day || car.retail_price_per_day}
           currency={car.discounted_price_currency || car.retail_price_currency}
           rating={car.rating}

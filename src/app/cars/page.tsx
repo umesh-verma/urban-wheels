@@ -1,5 +1,6 @@
 import { Suspense } from "react";
-import { FilterX } from "lucide-react";
+import Link from "next/link";
+import { FilterX, Search } from "lucide-react";
 
 import { MapContainer } from "@/components/map-container";
 import { SearchForm } from "@/components/search-form";
@@ -7,7 +8,7 @@ import { CarCatalogSkeleton } from "@/components/skeletons/car-catalog-skeleton"
 import { SearchFormSkeleton } from "@/components/skeletons/search-form-skeleton";
 import {
   fetchAvailableCars,
-  fetchCars,
+  fetchCarsByLocation,
   fetchLocations,
 } from "@/lib/db/queries";
 import { SearchParams } from "@/lib/enums";
@@ -37,10 +38,16 @@ export default async function CarsPage(props: CarsPageProps) {
     [SearchParams.CHECKOUT]: checkout,
   } = searchParams;
 
+  // Check if location is provided (dates are optional for basic filtering)
+  const hasLocation = !!location;
+  const hasDates = checkin && checkout;
+
   const [cars, locations] = await Promise.all([
-    location && checkin && checkout ?
-      fetchAvailableCars(location, new Date(checkin), new Date(checkout))
-    : fetchCars(),
+    hasLocation ?
+      hasDates ?
+        fetchAvailableCars(location, new Date(checkin), new Date(checkout))
+      : fetchCarsByLocation(location)
+    : [],
     fetchLocations(),
   ]);
 
@@ -58,12 +65,6 @@ export default async function CarsPage(props: CarsPageProps) {
     [SearchParams.TRANSMISSION]: transmissions,
     [SearchParams.MIN_SEATS]: minSeats,
   } = searchParams;
-
-  // Location filter (if cars weren't already filtered by fetchAvailableCars)
-  if (location && !(checkin && checkout)) {
-    // TODO: Add location-based filtering when dates are not provided
-    // This requires a car_locations join table that doesn't exist yet
-  }
 
   if (minPrice) {
     filteredCars = filteredCars.filter((car) => {
@@ -129,7 +130,23 @@ export default async function CarsPage(props: CarsPageProps) {
         <div className="w-full overflow-y-auto lg:w-[55%] xl:w-[63%]">
           <Suspense fallback={<CarCatalogSkeleton />}>
             <div className="p-4 sm:px-2 lg:py-2">
-              {filteredCars.length ?
+              {!hasLocation ?
+                <div className="flex h-[calc(100dvh-11rem)] flex-col items-center justify-center rounded-md border-2 border-dashed">
+                  <Search size={44} />
+                  <div className="text-center">
+                    <h1 className="text-xl font-semibold">Search for cars</h1>
+                    <p className="text-muted-foreground mt-3">
+                      Please select a location and dates to see available cars.
+                    </p>
+                    <Link
+                      href="/"
+                      className="text-primary mt-4 inline-block font-medium hover:underline"
+                    >
+                      Go to homepage to search
+                    </Link>
+                  </div>
+                </div>
+              : filteredCars.length ?
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] justify-center gap-3">
                   {filteredCars.map(({ id, slug }, index) => (
                     <CarCard key={id} index={index} slug={slug} />

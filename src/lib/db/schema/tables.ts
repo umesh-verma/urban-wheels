@@ -52,12 +52,13 @@ export const locations = createTable("locations", {
   latitude: text("latitude").notNull(),
   longitude: text("longitude").notNull(),
   featured: boolean("featured").default(false).notNull(),
+  image_url: text("image_url"),
 });
 
 export const rentalReservations = createTable("rental_reservations", {
   id: uuid("id").defaultRandom().primaryKey(),
   car_id: uuid("car_id").notNull(),
-  user_id: uuid("user_id").notNull(),
+  user_id: text("user_id").notNull(), // Kinde user IDs are not UUIDs (e.g., "kp_xxx")
   location_id: uuid("location_id").notNull(),
   check_in: timestamp("check_in", { mode: "date" }).notNull(),
   check_out: timestamp("check_out", { mode: "date" }).notNull(),

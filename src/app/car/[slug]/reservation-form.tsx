@@ -1,14 +1,15 @@
 "use client";
 
-import React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import React, { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addDays, differenceInDays, format, isAfter } from "date-fns";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
-import type { Location } from "@/lib/db/definitions";
+import type { Car, Location } from "@/lib/db/definitions";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -32,8 +33,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { createReservation } from "@/lib/actions/reservation";
 import { SearchParams } from "@/lib/enums";
-import { cn, createUrl, formatCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 
 const FormSchema = z
   .object({
@@ -56,73 +58,149 @@ const FormSchema = z
 type FormData = z.infer<typeof FormSchema>;
 
 type ReservationFormProps = {
-  carSlug: string;
+  car: Car;
   locations: Location[];
   pricePerDay: number;
   currency: string;
 };
 
 export function ReservationForm(props: ReservationFormProps) {
-  const { carSlug, locations, pricePerDay, currency } = props;
+  const { car, locations, pricePerDay, currency } = props;
 
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [days, setDays] = React.useState<number>();
   const [subtotal, setSubtotal] = React.useState<number>();
   const [taxesAndFees, setTaxesAndFees] = React.useState<number>();
+  const [total, setTotal] = React.useState<number>();
   const [locationOpen, setLocationOpen] = React.useState(false);
   const [checkinOpen, setCheckinOpen] = React.useState(false);
   const [checkoutOpen, setCheckoutOpen] = React.useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
   });
 
-  function onSubmit(values: FormData) {
+  // Calculate totals whenever dates change
+  const calculateTotal = React.useCallback(
+    (checkin?: Date, checkout?: Date) => {
+      if (checkin && checkout && isAfter(checkout, checkin)) {
+        const calculatedDays = differenceInDays(checkout, checkin);
+        const calculatedSubtotal = pricePerDay * calculatedDays;
+        const calculatedTaxesAndFees = calculatedSubtotal * 0.16;
+        const calculatedTotal = calculatedSubtotal + calculatedTaxesAndFees;
+
+        setDays(calculatedDays);
+        setSubtotal(calculatedSubtotal);
+        setTaxesAndFees(calculatedTaxesAndFees);
+        setTotal(calculatedTotal);
+      } else {
+        setDays(undefined);
+        setSubtotal(undefined);
+        setTaxesAndFees(undefined);
+        setTotal(undefined);
+      }
+    },
+    [pricePerDay]
+  );
+
+  // Handle form submission - create reservation and open WhatsApp
+  async function onSubmit(values: FormData) {
     const { location, checkin, checkout } = values;
 
-    const newParams = new URLSearchParams(searchParams.toString());
+    if (!car.id || !car.location_id) {
+      toast.error("Car information is incomplete");
+      return;
+    }
 
-    newParams.set(SearchParams.CAR_SLUG, carSlug);
-    newParams.set(SearchParams.LOCATION, location);
-    newParams.set(SearchParams.CHECKIN, checkin.toISOString());
-    newParams.set(SearchParams.CHECKOUT, checkout.toISOString());
+    const selectedLocation = locations.find((l) => l.value === location);
+    if (!selectedLocation) {
+      toast.error("Please select a valid location");
+      return;
+    }
 
-    console.log({ location, checkin, checkout });
-    router.push(createUrl("/reservation", newParams));
+    const calculatedDays = differenceInDays(checkout, checkin);
+    const calculatedSubtotal = pricePerDay * calculatedDays;
+    const calculatedTaxesAndFees = calculatedSubtotal * 0.16;
+    const calculatedTotal = calculatedSubtotal + calculatedTaxesAndFees;
+
+    setIsLoading(true);
+
+    try {
+      const result = await createReservation({
+        carId: car.id,
+        locationId: car.location_id,
+        checkIn: checkin,
+        checkOut: checkout,
+        carName: car.name,
+        carSlug: car.slug,
+        locationName: selectedLocation.name,
+        pricePerDay,
+        totalDays: calculatedDays,
+        subtotal: calculatedSubtotal,
+        taxesAndFees: calculatedTaxesAndFees,
+        total: calculatedTotal,
+        currency,
+      });
+
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+
+      if (result.success && result.whatsappUrl) {
+        toast.success("Reservation created!", {
+          description: "Opening WhatsApp to confirm...",
+        });
+
+        // Small delay to show toast before opening WhatsApp
+        setTimeout(() => {
+          window.open(result.whatsappUrl, "_blank", "noopener,noreferrer");
+        }, 500);
+      } else {
+        toast.error("Failed to generate WhatsApp link");
+      }
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
-  const calculateTotal = React.useCallback(() => {
-    const checkin = form.getValues("checkin");
-    const checkout = form.getValues("checkout");
+  // Watch for date changes and recalculate
+  React.useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === "checkin" || name === "checkout") {
+        const checkin = value.checkin as Date | undefined;
+        const checkout = value.checkout as Date | undefined;
+        calculateTotal(checkin, checkout);
+      }
+    });
 
-    if (checkin && checkout && isAfter(checkout, checkin)) {
-      const calculatedDays = differenceInDays(checkout, checkin);
-      const calculatedSubtotal = pricePerDay * calculatedDays;
-      const calculatedTaxesAndFees = calculatedSubtotal * 0.16;
+    return () => subscription.unsubscribe();
+  }, [form, calculateTotal]);
 
-      setDays(calculatedDays);
-      setSubtotal(calculatedSubtotal);
-      setTaxesAndFees(calculatedTaxesAndFees);
-    } else {
-      // Reset values if either check-in or checkout is not set or if checkout is not after check-in
-      setDays(undefined);
-      setSubtotal(undefined);
-      setTaxesAndFees(undefined);
-    }
-  }, [form, pricePerDay]);
-
+  // Load initial values from URL
   React.useEffect(() => {
     const location = searchParams.get(SearchParams.LOCATION);
     const checkin = searchParams.get(SearchParams.CHECKIN);
     const checkout = searchParams.get(SearchParams.CHECKOUT);
 
     if (location) form.setValue("location", location);
-    if (checkin) form.setValue("checkin", new Date(checkin));
-    if (checkout) form.setValue("checkout", new Date(checkout));
+    if (checkin) {
+      const date = new Date(checkin);
+      form.setValue("checkin", date);
+    }
+    if (checkout) {
+      const date = new Date(checkout);
+      form.setValue("checkout", date);
+    }
 
-    calculateTotal();
+    // Calculate totals if both dates are present
+    if (checkin && checkout) {
+      calculateTotal(new Date(checkin), new Date(checkout));
+    }
 
     return () => {
       form.resetField("location");
@@ -130,18 +208,6 @@ export function ReservationForm(props: ReservationFormProps) {
       form.resetField("checkout");
     };
   }, [searchParams, form, calculateTotal]);
-
-  React.useEffect(() => {
-    const subscription = form.watch(({ checkin, checkout }) => {
-      if (checkin && checkout) {
-        calculateTotal();
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [form, calculateTotal]);
 
   return (
     <>
@@ -151,60 +217,73 @@ export function ReservationForm(props: ReservationFormProps) {
             <FormField
               control={form.control}
               name="location"
-              render={({ field }) => (
-                <FormItem className="relative space-y-0">
-                  <FormLabel className="absolute left-2.5 top-2.5 text-xs font-bold">
-                    Pick-up / Drop-off
-                  </FormLabel>
+              render={({ field }) => {
+                const selectedLocation = locations.find(
+                  ({ value }) => value === field.value
+                );
+                const isReadOnly = !!field.value;
 
-                  <Popover open={locationOpen} onOpenChange={setLocationOpen}>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <button
-                          aria-label="select location"
-                          className="text-muted-foreground hover:text-foreground flex h-[58px] w-full flex-col justify-end truncate border-b p-2.5 text-left text-sm duration-200"
-                        >
-                          {field.value ?
-                            locations.find(({ value }) => value === field.value)
-                              ?.name
-                          : "Select location"}
-                        </button>
-                      </FormControl>
-                    </PopoverTrigger>
+                return (
+                  <FormItem className="relative space-y-0">
+                    <FormLabel className="absolute left-2.5 top-2.5 text-xs font-bold">
+                      Pick-up / Drop-off
+                    </FormLabel>
 
-                    <PopoverContent className="p-0">
-                      <Command>
-                        <CommandInput placeholder="Search location..." />
-                        <CommandList>
-                          <CommandEmpty>No place found.</CommandEmpty>
-                          <CommandGroup>
-                            {locations.map(({ name, value }) => (
-                              <CommandItem
-                                key={value}
-                                value={name}
-                                onSelect={() => {
-                                  form.setValue("location", value);
-                                  setLocationOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 size-4 shrink-0",
-                                    value === field.value ?
-                                      "opacity-100"
-                                    : "opacity-0"
-                                  )}
-                                />
-                                {name}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                </FormItem>
-              )}
+                    {isReadOnly ?
+                      <div className="text-muted-foreground flex h-[58px] w-full flex-col justify-end truncate border-b p-2.5 text-left text-sm">
+                        {selectedLocation?.name}
+                      </div>
+                    : <Popover
+                        open={locationOpen}
+                        onOpenChange={setLocationOpen}
+                      >
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <button
+                              type="button"
+                              aria-label="select location"
+                              className="text-muted-foreground hover:text-foreground flex h-[58px] w-full flex-col justify-end truncate border-b p-2.5 text-left text-sm duration-200"
+                            >
+                              {selectedLocation?.name ?? "Select location"}
+                            </button>
+                          </FormControl>
+                        </PopoverTrigger>
+
+                        <PopoverContent className="p-0">
+                          <Command>
+                            <CommandInput placeholder="Search location..." />
+                            <CommandList>
+                              <CommandEmpty>No place found.</CommandEmpty>
+                              <CommandGroup>
+                                {locations.map(({ name, value }) => (
+                                  <CommandItem
+                                    key={value}
+                                    value={name}
+                                    onSelect={() => {
+                                      form.setValue("location", value);
+                                      setLocationOpen(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 size-4 shrink-0",
+                                        value === field.value ?
+                                          "opacity-100"
+                                        : "opacity-0"
+                                      )}
+                                    />
+                                    {name}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    }
+                  </FormItem>
+                );
+              }}
             />
 
             <div className="grid grid-cols-2">
@@ -220,7 +299,10 @@ export function ReservationForm(props: ReservationFormProps) {
                     <Popover open={checkinOpen} onOpenChange={setCheckinOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
-                          <button className="text-muted-foreground hover:text-foreground flex h-14 w-full flex-col justify-end truncate p-2.5 text-left text-sm duration-200">
+                          <button
+                            type="button"
+                            className="text-muted-foreground hover:text-foreground flex h-14 w-full flex-col justify-end truncate p-2.5 text-left text-sm duration-200"
+                          >
                             {field.value ?
                               format(field.value, "dd/MM/yyyy")
                             : <span>Pick a date</span>}
@@ -236,6 +318,11 @@ export function ReservationForm(props: ReservationFormProps) {
                           onSelect={(date) => {
                             field.onChange(date);
                             setCheckinOpen(false);
+                            // Recalculate if checkout exists
+                            const checkout = form.getValues("checkout");
+                            if (date && checkout) {
+                              calculateTotal(date, checkout);
+                            }
                           }}
                           disabled={(date) => date <= new Date()}
                         />
@@ -257,7 +344,10 @@ export function ReservationForm(props: ReservationFormProps) {
                     <Popover open={checkoutOpen} onOpenChange={setCheckoutOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
-                          <button className="text-muted-foreground hover:text-foreground flex h-14 w-full flex-col justify-end truncate p-2.5 text-left text-sm duration-200">
+                          <button
+                            type="button"
+                            className="text-muted-foreground hover:text-foreground flex h-14 w-full flex-col justify-end truncate p-2.5 text-left text-sm duration-200"
+                          >
                             {field.value ?
                               format(field.value, "dd/MM/yyyy")
                             : <span>Pick a date</span>}
@@ -273,6 +363,11 @@ export function ReservationForm(props: ReservationFormProps) {
                           onSelect={(date) => {
                             field.onChange(date);
                             setCheckoutOpen(false);
+                            // Recalculate if checkin exists
+                            const checkin = form.getValues("checkin");
+                            if (checkin && date) {
+                              calculateTotal(checkin, date);
+                            }
                           }}
                           disabled={(date) => date <= addDays(new Date(), 1)}
                         />
@@ -299,8 +394,18 @@ export function ReservationForm(props: ReservationFormProps) {
             )}
           </div>
 
-          <Button type="submit" size="lg" className="mt-4 w-full text-base">
-            Reserve
+          <Button
+            type="submit"
+            size="lg"
+            className="mt-4 w-full text-base"
+            disabled={isLoading}
+          >
+            {isLoading ?
+              <>
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Processing...
+              </>
+            : "Reserve via WhatsApp"}
           </Button>
         </form>
       </Form>
@@ -333,12 +438,7 @@ export function ReservationForm(props: ReservationFormProps) {
 
         <div className="text-foreground flex items-center justify-between font-semibold">
           <p>Total (taxes included)</p>
-          <p>
-            {" "}
-            {subtotal && taxesAndFees ?
-              formatCurrency(subtotal + taxesAndFees, currency)
-            : "—"}
-          </p>
+          <p>{total ? formatCurrency(total, currency) : "—"}</p>
         </div>
       </div>
     </>

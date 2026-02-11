@@ -1,12 +1,12 @@
 import { Star } from "lucide-react";
 
-import type { Location } from "@/lib/db/definitions";
+import type { Car, Location } from "@/lib/db/definitions";
 
 import { formatCurrency } from "@/lib/utils";
 import { ReservationForm } from "./reservation-form";
 
 type ReservationSidebarProps = {
-  carSlug: string;
+  car: Car;
   pricePerDay: number;
   currency: string;
   rating: string;
@@ -15,7 +15,7 @@ type ReservationSidebarProps = {
 };
 
 export function ReservationSidebar(props: ReservationSidebarProps) {
-  const { carSlug, pricePerDay, currency, rating, reviews, locations } = props;
+  const { car, pricePerDay, currency, rating, reviews, locations } = props;
 
   return (
     <div className="hidden min-h-[calc(100vh-3rem)] normal-nums lg:block">
@@ -44,7 +44,7 @@ export function ReservationSidebar(props: ReservationSidebarProps) {
         </div>
 
         <ReservationForm
-          carSlug={carSlug}
+          car={car}
           locations={locations}
           pricePerDay={pricePerDay}
           currency={currency}

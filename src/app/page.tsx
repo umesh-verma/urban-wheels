@@ -36,7 +36,6 @@ import {
   sportsCar,
   suv,
 } from "@/public/images/cars/body-styles";
-import { cancun, dubai, paris, rome } from "@/public/images/locations";
 import { bodyStyles } from "./cars/filters/body-styles";
 
 export default async function Page() {
@@ -138,7 +137,6 @@ function BodyStyleCarExplorer() {
                       alt={name}
                       width={250}
                       height={144}
-                      placeholder="blur"
                       className="size-full bg-gradient-to-r from-[#f9f9f9] to-[#e9e9e9] object-cover object-center duration-300 group-hover:scale-110"
                     />
                   : <Skeleton className="size-full" />}
@@ -154,13 +152,6 @@ function BodyStyleCarExplorer() {
 }
 
 async function DestinationCarExplorer() {
-  const imageMap: { [key: string]: StaticImageData } = {
-    paris: paris,
-    dubai: dubai,
-    cancun: cancun,
-    rome: rome,
-  };
-
   const currency = "INR";
   const [featuredLocations, minPrice] = await Promise.all([
     fetchFeaturedLocations(),
@@ -177,9 +168,7 @@ async function DestinationCarExplorer() {
       </p>
 
       <div className="mt-8 grid grid-cols-1 grid-rows-1 items-center justify-between sm:grid-cols-2 md:grid-cols-4">
-        {featuredLocations.map(({ id, value, name }) => {
-          const imageUrl = imageMap[value];
-
+        {featuredLocations.map(({ id, value, name, image_url }) => {
           return (
             <Link
               key={id}
@@ -191,13 +180,12 @@ async function DestinationCarExplorer() {
             >
               <div className="group size-full overflow-hidden rounded-2xl border">
                 <AspectRatio ratio={16 / 9}>
-                  {imageUrl ?
+                  {image_url ?
                     <Image
-                      src={imageUrl}
+                      src={image_url}
                       alt={name}
                       fill
                       className="size-full object-cover object-center duration-300 group-hover:scale-105"
-                      placeholder="blur"
                     />
                   : <Skeleton className="size-full" />}
                 </AspectRatio>

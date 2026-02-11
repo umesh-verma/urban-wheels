@@ -1,6 +1,7 @@
 // @ts-nocheck
 
-export {default as cancun} from './cancun.avif';
-export {default as  dubai} from './dubai.avif';
-export {default as  paris} from './paris.avif';
-export {default as  rome} from './rome.avif';
+export { default as bilaspur } from './bilaspur.svg';
+export { default as raipur } from './raipur.svg';
+export { default as bhilai } from './bhilai.svg';
+export { default as ambikapur } from './ambikapur.svg';
+export { default as korba } from './korba.svg';

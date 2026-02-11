@@ -117,6 +117,33 @@ export async function fetchCarBySlug(slug: string) {
   }
 }
 
+export async function fetchCarsByLocation(locationValue: string) {
+  // Find the location by value
+  const location = await fetchLocationByValue(locationValue);
+  if (!location?.id) {
+    return [];
+  }
+
+  const locationId = location.id;
+
+  if (usePlaceholder()) {
+    return placeholder.cars.filter((car) => car.location_id === locationId);
+  }
+
+  try {
+    console.log("Fetching cars for location...");
+    const data = await db
+      .select()
+      .from(cars)
+      .where(eq(cars.location_id, locationId));
+    console.log("Data fetch complete.");
+    return data;
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch cars by location.");
+  }
+}
+
 export async function fetchAvailableCars(
   locationValue: string,
   checkIn: Date,
