@@ -70,6 +70,8 @@ export function SearchForm({
   const searchParams = useSearchParams();
 
   const [open, setOpen] = React.useState(false);
+  const [checkinOpen, setCheckinOpen] = React.useState(false);
+  const [checkoutOpen, setCheckoutOpen] = React.useState(false);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -222,7 +224,7 @@ export function SearchForm({
                   Check in
                 </FormLabel>
 
-                <Popover>
+                <Popover open={checkinOpen} onOpenChange={setCheckinOpen}>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <button
@@ -243,7 +245,10 @@ export function SearchForm({
                       autoFocus
                       mode="single"
                       selected={field.value}
-                      onSelect={field.onChange}
+                      onSelect={(date) => {
+                        field.onChange(date);
+                        setCheckinOpen(false);
+                      }}
                       disabled={(date) => date <= new Date()}
                     />
                   </PopoverContent>
@@ -281,7 +286,7 @@ export function SearchForm({
                   Check out
                 </FormLabel>
 
-                <Popover>
+                <Popover open={checkoutOpen} onOpenChange={setCheckoutOpen}>
                   <PopoverTrigger asChild>
                     <FormControl>
                       <button
@@ -302,7 +307,10 @@ export function SearchForm({
                       autoFocus
                       mode="single"
                       selected={field.value}
-                      onSelect={field.onChange}
+                      onSelect={(date) => {
+                        field.onChange(date);
+                        setCheckoutOpen(false);
+                      }}
                       disabled={(date) => date <= addDays(new Date(), 1)}
                     />
                   </PopoverContent>

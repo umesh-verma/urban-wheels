@@ -71,6 +71,9 @@ export function ReservationForm(props: ReservationFormProps) {
   const [days, setDays] = React.useState<number>();
   const [subtotal, setSubtotal] = React.useState<number>();
   const [taxesAndFees, setTaxesAndFees] = React.useState<number>();
+  const [locationOpen, setLocationOpen] = React.useState(false);
+  const [checkinOpen, setCheckinOpen] = React.useState(false);
+  const [checkoutOpen, setCheckoutOpen] = React.useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
@@ -154,7 +157,7 @@ export function ReservationForm(props: ReservationFormProps) {
                     Pick-up / Drop-off
                   </FormLabel>
 
-                  <Popover>
+                  <Popover open={locationOpen} onOpenChange={setLocationOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <button
@@ -181,6 +184,7 @@ export function ReservationForm(props: ReservationFormProps) {
                                 value={name}
                                 onSelect={() => {
                                   form.setValue("location", value);
+                                  setLocationOpen(false);
                                 }}
                               >
                                 <Check
@@ -213,7 +217,7 @@ export function ReservationForm(props: ReservationFormProps) {
                       Check in
                     </FormLabel>
 
-                    <Popover>
+                    <Popover open={checkinOpen} onOpenChange={setCheckinOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <button className="text-muted-foreground hover:text-foreground flex h-14 w-full flex-col justify-end truncate p-2.5 text-left text-sm duration-200">
@@ -229,7 +233,10 @@ export function ReservationForm(props: ReservationFormProps) {
                           autoFocus
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setCheckinOpen(false);
+                          }}
                           disabled={(date) => date <= new Date()}
                         />
                       </PopoverContent>
@@ -247,7 +254,7 @@ export function ReservationForm(props: ReservationFormProps) {
                       Check out
                     </FormLabel>
 
-                    <Popover>
+                    <Popover open={checkoutOpen} onOpenChange={setCheckoutOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <button className="text-muted-foreground hover:text-foreground flex h-14 w-full flex-col justify-end truncate p-2.5 text-left text-sm duration-200">
@@ -263,7 +270,10 @@ export function ReservationForm(props: ReservationFormProps) {
                           autoFocus
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setCheckoutOpen(false);
+                          }}
                           disabled={(date) => date <= addDays(new Date(), 1)}
                         />
                       </PopoverContent>
