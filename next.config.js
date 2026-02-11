@@ -8,15 +8,15 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "urban-wheels.rajputhemant.me",
+        hostname: "*.vercel.app",
       },
       {
         protocol: "https",
-        hostname: "urban-wheels.vercel.app",
+        hostname: "*.bitnbyte.in",
       },
       {
         protocol: "https",
-        hostname: "urban-wheels.netlify.app",
+        hostname: "yjalvnfxtsplkfsrrwhz.supabase.co",
       },
     ],
   },
