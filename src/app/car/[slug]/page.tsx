@@ -8,12 +8,13 @@ import { fetchCarBySlug, fetchCars, fetchLocations } from "@/lib/db/queries";
 import { ReservationSidebar } from "./reservation-sidebar";
 
 type CarPageProps = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata({
-  params: { slug },
+  params,
 }: CarPageProps): Promise<Metadata> {
+  const { slug } = await params;
   const car = await fetchCarBySlug(slug);
 
   if (!car) {
@@ -32,8 +33,9 @@ export async function generateStaticParams() {
 }
 
 export default async function CarDetailsPage({ params }: CarPageProps) {
+  const { slug } = await params;
   const [car, locations] = await Promise.all([
-    fetchCarBySlug(params.slug),
+    fetchCarBySlug(slug),
     fetchLocations(),
   ]);
 
@@ -138,7 +140,7 @@ export default async function CarDetailsPage({ params }: CarPageProps) {
         </div>
 
         <ReservationSidebar
-          carSlug={params.slug}
+          carSlug={slug}
           pricePerDay={car.discounted_price_per_day || car.retail_price_per_day}
           currency={car.discounted_price_currency || car.retail_price_currency}
           rating={car.rating}

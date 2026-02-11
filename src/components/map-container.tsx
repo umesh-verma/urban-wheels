@@ -1,19 +1,8 @@
-import dynamic from "next/dynamic";
-
 import { fetchLocations } from "@/lib/db/queries";
-import { Skeleton } from "./ui/skeleton";
-
-const DynamicMap = dynamic(async () => await import("./map"), {
-  loading: () => <Skeleton className="size-full" />,
-  ssr: false,
-});
+import { MapWrapper } from "./map-wrapper";
 
 export async function MapContainer() {
   const locations = await fetchLocations();
 
-  return (
-    <div className="flex w-full">
-      <DynamicMap locations={locations} />
-    </div>
-  );
+  return <MapWrapper locations={locations} />;
 }

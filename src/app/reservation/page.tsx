@@ -10,21 +10,22 @@ import { NavigateBack } from "./navigate-back";
 import { PayButton } from "./pay-button";
 
 type ReservationPageProps = {
-  searchParams: {
+  searchParams: Promise<{
     [SearchParams.CAR_SLUG]: string;
     [SearchParams.LOCATION]: string;
     [SearchParams.CHECKIN]: string;
     [SearchParams.CHECKOUT]: string;
-  };
+  }>;
 };
 
 export default async function ReservationPage(props: ReservationPageProps) {
+  const searchParams = await props.searchParams;
   const {
     checkin,
     checkout,
     location: locationSlug,
     [SearchParams.CAR_SLUG]: carSlug,
-  } = props.searchParams;
+  } = searchParams;
 
   const [car, location] = await Promise.allSettled([
     fetchCarBySlug(carSlug),

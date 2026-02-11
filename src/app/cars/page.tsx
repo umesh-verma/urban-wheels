@@ -12,17 +12,18 @@ import { CarCard } from "./car-card";
 import { Filters } from "./filters";
 
 type CarsPageProps = {
-  searchParams: {
+  searchParams: Promise<{
     [SearchParams.MIN_PRICE]?: string;
     [SearchParams.MAX_PRICE]?: string;
     [SearchParams.BODY_STYLE]?: string[];
     [SearchParams.ENGINE_TYPE]?: string[];
     [SearchParams.TRANSMISSION]?: string[];
     [SearchParams.MIN_SEATS]?: string;
-  };
+  }>;
 };
 
-export default async function CarsPage({ searchParams }: CarsPageProps) {
+export default async function CarsPage(props: CarsPageProps) {
+  const searchParams = await props.searchParams;
   const [cars, locations] = await Promise.all([fetchCars(), fetchLocations()]);
 
   const carPrices = cars.map(

@@ -3,7 +3,6 @@ await import("./src/lib/env.js");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
@@ -21,8 +20,6 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {},
-  // ...
 };
 
 export default nextConfig;

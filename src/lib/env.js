@@ -76,14 +76,6 @@ export const env = createEnv({
       .string()
       .min(1, { message: "Database URL is invalid or missing" }),
 
-    /* -----------------------------------------------------------------------------------------------
-     * Upstash Rate Limiting (Redis)
-     * -----------------------------------------------------------------------------------------------*/
-
-    UPSTASH_REDIS_REST_URL: z.string().url().optional(),
-    UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
-    ENABLE_RATE_LIMITING: z.coerce.boolean().default(false),
-    RATE_LIMITING_REQUESTS_PER_SECOND: z.coerce.number().default(50),
   },
 
   /**
