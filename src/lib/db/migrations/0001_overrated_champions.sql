@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS "urban_wheels_cars" (
+CREATE TABLE IF NOT EXISTS "cg_rental_cars" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"slug" text NOT NULL,
 	"name" text NOT NULL,
@@ -16,26 +16,26 @@ CREATE TABLE IF NOT EXISTS "urban_wheels_cars" (
 	"retail_price_currency" text NOT NULL,
 	"discounted_price_per_day" integer,
 	"discounted_price_currency" text,
-	CONSTRAINT "urban_wheels_cars_slug_unique" UNIQUE("slug")
+	CONSTRAINT "cg_rental_cars_slug_unique" UNIQUE("slug")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "urban_wheels_locations" (
+CREATE TABLE IF NOT EXISTS "cg_rental_locations" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" text NOT NULL,
 	"value" text NOT NULL,
 	"latitude" text NOT NULL,
 	"longitude" text NOT NULL,
 	"featured" boolean DEFAULT false NOT NULL,
-	CONSTRAINT "urban_wheels_locations_value_unique" UNIQUE("value")
+	CONSTRAINT "cg_rental_locations_value_unique" UNIQUE("value")
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "urban_wheels_newsletter_subscribers" (
+CREATE TABLE IF NOT EXISTS "cg_rental_newsletter_subscribers" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"email" text NOT NULL,
 	"created_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "urban_wheels_rental_reservations" (
+CREATE TABLE IF NOT EXISTS "cg_rental_rental_reservations" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"car_id" uuid NOT NULL,
 	"user_id" uuid NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS "urban_wheels_rental_reservations" (
 	"created_at" timestamp NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "urban_wheels_testimonials" (
+CREATE TABLE IF NOT EXISTS "cg_rental_testimonials" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"name" text NOT NULL,
 	"comment" text NOT NULL,

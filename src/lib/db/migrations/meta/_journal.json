@@ -15,6 +15,13 @@
       "when": 1701186878393,
       "tag": "0001_overrated_champions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1770843247009,
+      "tag": "0002_minor_scarlet_spider",
+      "breakpoints": true
     }
   ]
 }

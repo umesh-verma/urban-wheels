@@ -4,7 +4,7 @@ import { Check, Gift, LifeBuoy, Map } from "lucide-react";
 
 import type { Metadata } from "next";
 
-import { fetchCarBySlug, fetchCars, fetchLocations } from "@/lib/db/queries";
+import { fetchCarBySlug, fetchLocations } from "@/lib/db/queries";
 import { ReservationSidebar } from "./reservation-sidebar";
 
 type CarPageProps = {
@@ -27,10 +27,9 @@ export async function generateMetadata({
   };
 }
 
-export async function generateStaticParams() {
-  const cars = await fetchCars();
-  return cars.map(({ slug }) => ({ slug }));
-}
+// Make this page dynamic to avoid build-time database issues
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 
 export default async function CarDetailsPage({ params }: CarPageProps) {
   const { slug } = await params;
