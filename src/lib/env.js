@@ -30,6 +30,11 @@ export const env = createEnv({
       .default("false")
       .transform((v) => v === "true"),
 
+    USE_REDIS: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((v) => v === "true"),
+
     /* -----------------------------------------------------------------------------------------------
      * Kinde Auth
      * -----------------------------------------------------------------------------------------------*/
@@ -100,6 +105,13 @@ export const env = createEnv({
 
     SUPABASE_URL: z.string().url().optional(),
     SUPABASE_SERVICE_KEY: z.string().optional(),
+
+    /* -----------------------------------------------------------------------------------------------
+     * Upstash Redis (Optional - for rate limiting & caching)
+     * -----------------------------------------------------------------------------------------------*/
+
+    UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+    UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
 
   },
 
