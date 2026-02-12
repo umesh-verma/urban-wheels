@@ -26,14 +26,12 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
 import { SearchParams } from "@/lib/enums";
 import { cn, createUrl } from "@/lib/utils";
 
@@ -43,7 +41,7 @@ const FormSchema = z
     checkin: z.date({ required_error: "Check in is required" }),
     checkout: z.date({ required_error: "Check out is required" }),
   })
-  .refine(({ checkin, checkout }) => isAfter(checkout, checkin), {
+  .refine((schema) => isAfter(schema.checkout, schema.checkin), {
     message: "Check out must be after check in",
     path: ["checkout"],
   })
@@ -117,50 +115,224 @@ export function SearchForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={cn(
-          "bg-background relative mx-auto grid grid-cols-[1.25fr_auto_1fr_auto_1fr_auto] items-center justify-between gap-x-2 whitespace-nowrap rounded-full border",
-          compact ? "h-14 w-[720px] px-2 py-1" : "h-[68px] w-[860px] px-3 py-2",
-          className
-        )}
+        className={cn("relative", className)}
         {...props}
       >
-        <div className="relative">
+        {/* Desktop Layout - Pill shape */}
+        <div
+          className={cn(
+            "hidden md:grid md:mx-auto md:grid-cols-[1.25fr_auto_1fr_auto_1fr_auto] md:items-center md:justify-between md:gap-x-2 md:whitespace-nowrap md:rounded-full md:border md:bg-background",
+            compact ?
+              "md:h-14 md:w-[720px] md:px-2 md:py-1"
+            : "md:h-[68px] md:w-[860px] md:px-3 md:py-2"
+          )}
+        >
+          {/* Location */}
+          <div className="relative">
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem className="grid size-full grid-cols-1 items-start justify-center space-y-0 overflow-x-hidden px-4">
+                  <FormLabel
+                    className={cn(
+                      "inline-block size-full font-bold",
+                      compact ? "text-xs" : "text-sm"
+                    )}
+                  >
+                    Pick-up / Drop-off
+                  </FormLabel>
+
+                  <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <button
+                          role="combobox"
+                          aria-label="select location"
+                          className={cn(
+                            "text-muted-foreground text-left text-sm",
+                            field.value && "font-medium"
+                          )}
+                        >
+                          {field.value ?
+                            locations.find(
+                              (location) => location.value === field.value
+                            )?.name
+                          : "Select location"}
+                        </button>
+                      </FormControl>
+                    </PopoverTrigger>
+
+                    <PopoverContent className="p-0">
+                      <Command>
+                        <CommandInput placeholder="Search location..." />
+                        <CommandList>
+                          <CommandEmpty>No place found.</CommandEmpty>
+                          <CommandGroup>
+                            {locations.map(({ name, value }) => (
+                              <CommandItem
+                                key={name}
+                                value={value}
+                                onSelect={(currentValue) => {
+                                  form.setValue("location", currentValue);
+                                  setOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 size-4 shrink-0",
+                                    value === field.value ?
+                                      "opacity-100"
+                                    : "opacity-0"
+                                  )}
+                                />
+                                {name}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="w-px h-8 bg-border" />
+
+          {/* Check in */}
+          <div className="relative">
+            <FormField
+              control={form.control}
+              name="checkin"
+              render={({ field }) => (
+                <FormItem className="grid h-full shrink-0 grow-0 grid-cols-1 items-start justify-center space-y-0 px-4">
+                  <FormLabel
+                    className={cn(
+                      "inline-block size-full font-bold",
+                      compact ? "text-xs" : "text-sm"
+                    )}
+                  >
+                    Check in
+                  </FormLabel>
+
+                  <Popover open={checkinOpen} onOpenChange={setCheckinOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <button
+                          className={cn(
+                            "text-muted-foreground text-left text-sm",
+                            field.value && "font-medium"
+                          )}
+                        >
+                          {field.value ?
+                            format(field.value, "LLL dd, y")
+                          : <span>Pick a date</span>}
+                        </button>
+                      </FormControl>
+                    </PopoverTrigger>
+
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        autoFocus
+                        mode="single"
+                        selected={field.value}
+                        onSelect={(date) => {
+                          field.onChange(date);
+                          setCheckinOpen(false);
+                        }}
+                        disabled={(date) => date <= new Date()}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="w-px h-8 bg-border" />
+
+          {/* Check out */}
+          <div className="relative">
+            <FormField
+              control={form.control}
+              name="checkout"
+              render={({ field }) => (
+                <FormItem className="grid h-full shrink-0 grow-0 grid-cols-1 items-start justify-center space-y-0 px-4">
+                  <FormLabel
+                    className={cn(
+                      "inline-block size-full font-bold",
+                      compact ? "text-xs" : "text-sm"
+                    )}
+                  >
+                    Check out
+                  </FormLabel>
+
+                  <Popover open={checkoutOpen} onOpenChange={setCheckoutOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <button
+                          className={cn(
+                            "text-muted-foreground text-left text-sm",
+                            field.value && "font-medium"
+                          )}
+                        >
+                          {field.value ?
+                            format(field.value, "LLL dd, y")
+                          : <span>Pick a date</span>}
+                        </button>
+                      </FormControl>
+                    </PopoverTrigger>
+
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        autoFocus
+                        mode="single"
+                        selected={field.value}
+                        onSelect={(date) => {
+                          field.onChange(date);
+                          setCheckoutOpen(false);
+                        }}
+                        disabled={(date) => date <= addDays(new Date(), 1)}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <Button type="submit" size="icon" className="rounded-full">
+            <Search
+              strokeWidth={3}
+              className={cn(compact ? "size-4" : "size-5")}
+            />
+          </Button>
+        </div>
+
+        {/* Mobile Layout - Card */}
+        <div className="md:hidden flex flex-col gap-3 rounded-xl border bg-background p-4">
+          {/* Location */}
           <FormField
             control={form.control}
             name="location"
             render={({ field }) => (
-              <FormItem className="grid size-full grid-cols-1 items-start justify-center space-y-0 overflow-x-hidden px-4">
-                <FormLabel
-                  className={cn(
-                    "inline-block size-full font-bold",
-                    compact ? "text-xs" : "text-sm"
-                  )}
-                >
+              <FormItem className="space-y-1.5">
+                <FormLabel className="text-sm font-bold">
                   Pick-up / Drop-off
                 </FormLabel>
-
                 <Popover open={open} onOpenChange={setOpen}>
                   <PopoverTrigger asChild>
                     <FormControl>
-                      <button
-                        role="combobox"
-                        aria-label="select location"
-                        aria-controls="location-menu"
-                        aria-expanded
-                        className={cn(
-                          "text-muted-foreground text-left text-sm",
-                          field.value && "font-medium"
-                        )}
-                      >
+                      <button className="w-full rounded-lg border px-3 py-2.5 text-left text-sm text-muted-foreground hover:text-foreground">
                         {field.value ?
-                          locations.find(
-                            (location) => location.value === field.value
-                          )?.name
+                          locations.find((l) => l.value === field.value)?.name
                         : "Select location"}
                       </button>
                     </FormControl>
                   </PopoverTrigger>
-                  <PopoverContent className="p-0">
+                  <PopoverContent className="p-0 w-[280px]">
                     <Command>
                       <CommandInput placeholder="Search location..." />
                       <CommandList>
@@ -168,16 +340,16 @@ export function SearchForm({
                         <CommandGroup>
                           {locations.map(({ name, value }) => (
                             <CommandItem
-                              key={name}
-                              value={value}
-                              onSelect={(currentValue) => {
-                                form.setValue("location", currentValue);
+                              key={value}
+                              value={name}
+                              onSelect={() => {
+                                form.setValue("location", value);
                                 setOpen(false);
                               }}
                             >
                               <Check
                                 className={cn(
-                                  "mr-2 size-4 shrink-0",
+                                  "mr-2 size-4",
                                   value === field.value ?
                                     "opacity-100"
                                   : "opacity-0"
@@ -191,149 +363,83 @@ export function SearchForm({
                     </Command>
                   </PopoverContent>
                 </Popover>
-
-                <FormMessage
-                  className={cn(
-                    "absolute overflow-hidden text-ellipsis",
-                    compact ? "top-14 text-xs" : "top-16 text-sm"
-                  )}
-                />
               </FormItem>
             )}
           />
+
+          {/* Dates - Side by side */}
+          <div className="grid grid-cols-2 gap-3">
+            <FormField
+              control={form.control}
+              name="checkin"
+              render={({ field }) => (
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="text-sm font-bold">Check in</FormLabel>
+                  <Popover open={checkinOpen} onOpenChange={setCheckinOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <button className="w-full rounded-lg border px-3 py-2.5 text-left text-sm text-muted-foreground hover:text-foreground">
+                          {field.value ?
+                            format(field.value, "MMM d")
+                          : "Pick date"}
+                        </button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={(date) => {
+                          field.onChange(date);
+                          setCheckinOpen(false);
+                        }}
+                        disabled={(date) => date <= new Date()}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="checkout"
+              render={({ field }) => (
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="text-sm font-bold">Check out</FormLabel>
+                  <Popover open={checkoutOpen} onOpenChange={setCheckoutOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <button className="w-full rounded-lg border px-3 py-2.5 text-left text-sm text-muted-foreground hover:text-foreground">
+                          {field.value ?
+                            format(field.value, "MMM d")
+                          : "Pick date"}
+                        </button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={(date) => {
+                          field.onChange(date);
+                          setCheckoutOpen(false);
+                        }}
+                        disabled={(date) => date <= addDays(new Date(), 1)}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Search Button */}
+          <Button type="submit" className="w-full rounded-lg mt-1">
+            <Search className="mr-2 size-4" />
+            Search Cars
+          </Button>
         </div>
-
-        <Separator
-          orientation="vertical"
-          decorative
-          className={compact ? "h-6" : "h-8"}
-        />
-
-        <div className="relative">
-          <FormField
-            control={form.control}
-            name="checkin"
-            render={({ field }) => (
-              <FormItem className="grid h-full shrink-0 grow-0 grid-cols-1 items-start justify-center space-y-0 px-4">
-                <FormLabel
-                  className={cn(
-                    "inline-block size-full font-bold",
-                    compact ? "text-xs" : "text-sm"
-                  )}
-                >
-                  Check in
-                </FormLabel>
-
-                <Popover open={checkinOpen} onOpenChange={setCheckinOpen}>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <button
-                        className={cn(
-                          "text-muted-foreground text-left text-sm",
-                          field.value && "font-medium"
-                        )}
-                      >
-                        {field.value ?
-                          format(field.value, "LLL dd, y")
-                        : <span>Pick a date</span>}
-                      </button>
-                    </FormControl>
-                  </PopoverTrigger>
-
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      autoFocus
-                      mode="single"
-                      selected={field.value}
-                      onSelect={(date) => {
-                        field.onChange(date);
-                        setCheckinOpen(false);
-                      }}
-                      disabled={(date) => date <= new Date()}
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                <FormMessage
-                  className={cn(
-                    "absolute overflow-hidden text-ellipsis",
-                    compact ? "top-14 text-xs" : "top-16 text-sm"
-                  )}
-                />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <Separator
-          orientation="vertical"
-          decorative
-          className={compact ? "h-6" : "h-8"}
-        />
-
-        <div className="relative">
-          <FormField
-            control={form.control}
-            name="checkout"
-            render={({ field }) => (
-              <FormItem className="grid h-full shrink-0 grow-0 grid-cols-1 items-start justify-center space-y-0 px-4">
-                <FormLabel
-                  className={cn(
-                    "inline-block size-full font-bold",
-                    compact ? "text-xs" : "text-sm"
-                  )}
-                >
-                  Check out
-                </FormLabel>
-
-                <Popover open={checkoutOpen} onOpenChange={setCheckoutOpen}>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <button
-                        className={cn(
-                          "text-muted-foreground text-left text-sm",
-                          field.value && "font-medium"
-                        )}
-                      >
-                        {field.value ?
-                          format(field.value, "LLL dd, y")
-                        : <span>Pick a date</span>}
-                      </button>
-                    </FormControl>
-                  </PopoverTrigger>
-
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      autoFocus
-                      mode="single"
-                      selected={field.value}
-                      onSelect={(date) => {
-                        field.onChange(date);
-                        setCheckoutOpen(false);
-                      }}
-                      disabled={(date) => date <= addDays(new Date(), 1)}
-                    />
-                  </PopoverContent>
-                </Popover>
-
-                <FormMessage
-                  className={cn(
-                    "absolute overflow-hidden text-ellipsis",
-                    compact ? "top-14 text-xs" : "top-16 text-sm"
-                  )}
-                />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <Button type="submit" size="icon" className="rounded-full">
-          <span className="sr-only">Search</span>
-          <Search
-            strokeWidth={3}
-            className={cn(compact ? "size-4" : "size-5")}
-          />
-        </Button>
       </form>
     </Form>
   );
